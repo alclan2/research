@@ -86,7 +86,7 @@ points = gpd.GeoDataFrame(
 
 filtered = gpd.sjoin(
     points,
-    basins[basins["basin name"] == "NE Pacific"],
+    basins[basins["basin name"] == "N Atlantic"],
     how = "inner",
     predicate = "within"
 )
@@ -105,6 +105,6 @@ plt.grid(color = 'gray', linestyle = '--', linewidth = 0.6, alpha = 0.5)
 # axis labels
 plt.xlabel('Year')
 plt.ylabel('Number of TCs/TDs')
-plt.title('Number of TCs/TDs in NE Pacific from 1940-2024')
+plt.title('Number of TCs/TDs in N Atlantic from 1940-2024')
 
 plt.show()
