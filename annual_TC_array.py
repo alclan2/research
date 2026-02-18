@@ -31,34 +31,42 @@ wide_counts = annual_TC_counts.pivot(index="YEAR", columns="cell_id", values="n_
 
 # convert to array
 arr = wide_counts.values
-#print(arr.shape)
 
 
 
-
-
-
-
-# histogram check
-#plt.hist(arr.flatten(), bins=range(int(arr.max())+2), edgecolor='k')
-#plt.xlabel("Number of cyclones per year per cell")
-#plt.ylabel("Frequency")
-#plt.title("Distribution of cyclone counts across cells and years")
-#plt.show()
-
-max_cyclones = arr.max()
-print("Maximum number of cyclones in any year-cell:", max_cyclones)
-
-# get indices of max values
-row_idx, col_idx = np.where(arr == max_cyclones)
-
-# print the results
-for r, c in zip(row_idx, col_idx):
-    print(f"Year: {wide_counts.index[r]}, Cell: {wide_counts.columns[c]}, Cyclones: {arr[r, c]}")
-
-N = 5  # top 5
+# print top 5 cells
+N = 5 
 flat_indices = np.argsort(arr.flatten())[::-1][:N]  # indices of top N values
 rows, cols = np.unravel_index(flat_indices, arr.shape)
 
 for r, c in zip(rows, cols):
-    print(f"Year: {wide_counts.index[r]}, Cell: {wide_counts.columns[c]}, Cyclones: {arr[r, c]}")
+    print(f"Year: {wide_counts.index[r]}, Cell (lat, lon): {wide_counts.columns[c]}, Cyclones: {arr[r, c]}")
+
+
+# print a sample of the array
+cells = (
+    dfc_sub[['lat_bin', 'lon_bin']]
+    .drop_duplicates()
+    .sort_values(['lat_bin', 'lon_bin'])
+    .reset_index(drop=True)
+)
+
+years = np.sort(dfc_sub["YEAR"].unique())
+
+nyears, ncells = arr.shape
+
+random_year_idx = np.random.choice(nyears, 3, replace=False)
+random_cell_idx = np.random.choice(ncells, 5, replace=False)
+
+sample = arr[np.ix_(random_year_idx, random_cell_idx)]
+
+row_labels = years[random_year_idx]
+
+col_labels = [
+    f"({cells.loc[i,'lat_bin']}, {cells.loc[i,'lon_bin']})"
+    for i in random_cell_idx
+]
+
+df_sample = pd.DataFrame(sample, index=row_labels, columns=col_labels)
+print(df_sample)
+
