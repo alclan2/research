@@ -9,10 +9,10 @@ import cartopy.mpl.ticker as cticker
 import matplotlib.ticker as mticker
 
 fpaths = [
-    "annual_tc_counts_NAtlantic_16deg.nc"
+    "annual_tc_counts_anomaly_NAtlantic_4deg.nc"
 ]
 
-da_region, reconstructed = generate_regions(fpaths, nRegions = 6, nIter = 5)
+da_region, reconstructed = generate_regions(fpaths, nRegions = 6, nIter = 50)
 
 # create map with projection of continents
 fig = plt.figure(figsize=(10, 6))
@@ -45,6 +45,6 @@ gl.ylocator = mticker.MultipleLocator(10)
 ax.coastlines()
 
 # format and save
-plt.title("TCs in North Atlantic 1940-2024 (6 regions, 16deg grid)")
-plt.savefig("./images/region_generation/region_annual_TC_NAtlantic_6regions_16deg.png")
+plt.title("TC Count Anomaly in North Atlantic 1940-2024 (3 regions, 4deg grid)")
+#plt.savefig("./images/region_generation/region_annual_TC_anomaly_NAtlantic_6regions_16deg.png")
 plt.show()
