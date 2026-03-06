@@ -186,6 +186,8 @@ var.encoding = {}
 # save sst dataset with sub basin ids
 sst_subbasin.to_netcdf("SST_ltmm_NAtl_subbasins.nc")
 
+#print(sst_filt.coords)
 
-for i, name in enumerate(sub_basins["sub_basin_name"]):
-    print(i, name)
+ds = xr.open_dataset("SST_ltmm_NAtl_1deg.nc", decode_times=time_coder)
+da = ds['sst']
+print(ds)

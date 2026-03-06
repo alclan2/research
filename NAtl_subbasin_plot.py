@@ -8,20 +8,7 @@ from shapely.geometry import Polygon, MultiPolygon, Point
 from shapely.ops import transform
 import cartopy.feature as cfeature
 
-#time_coder = xr.coders.CFDatetimeCoder(use_cftime=True)
-
-# open COBE SST long term monthly mean file
-#ds = xr.open_dataset(r"datasets\sst.mon.ltm.1991-2020.nc", decode_times=time_coder)
-
-# Print dataset summary
-#print(ds)
-
-
 # plot tc_basins over world map
-
-
-
-
 polygons_dict = {}
 
 with open("tc_basins.dat", "r") as f:

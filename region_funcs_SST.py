@@ -5,13 +5,14 @@ time_coder = xr.coders.CFDatetimeCoder(use_cftime=True)
 def open_and_normalize_datasets(
         fpaths: list[str], 
         weights: list[float] = None, 
-        start_year: int = 1980, 
-        end_year: int = 2014
+        start_year = None, 
+        end_year = None
     ): 
     import xarray as xr
 
     """ 
     Normalizes and concatonates input datasets
+    Works with 12-month climatology datasets (no anomaly needed).
     """
 
     variable_names = []
@@ -37,31 +38,40 @@ def open_and_normalize_datasets(
             break
 
         ds = ds.transpose("time", latname , lonname, ...)
-        ds = ds.isel(time = ds.time.dt.year.isin(range(start_year, end_year + 1)))
+        #ds = ds.isel(time = ds.time.dt.year.isin(range(start_year, end_year + 1)))
         varname = list(ds.data_vars)[0]
         variable_names.append(varname)
-        da = ds[varname]
+        da = ds['sst']
         da_raw_arr.append(da)
 
-        # !!!!!! check
-        print("----- DEBUG DA -----")
-        print(da)
-        print("dims:", da.dims)
-        print("coords:", da.coords)
-        print("--------------------")
+        # Assign month numbers 1-12 (since dataset is monthly mean climatology)
+        da = da.assign_coords(month=("time", range(1, da.sizes['time'] + 1)))
 
+        # Skip anomaly computation (mean over months would be zero)
+        da_anom = da  # keep raw values for clustering
 
+        # Flatten the DataArray for clustering: (time, lat*lon)
+        #da_arr_flat = da_anom.values.reshape(da.sizes['time'], -1)
 
+        # Convert back to DataArray for xr.concat
+        #da_arr_da = xr.DataArray(
+        #    da_arr_flat,
+        #    dims=("time", "space"),
+        #    coords={"time": da.month}
+        #)
 
+        da_arr.append(da_anom)
 
-        da_anom = da.groupby("time.month") - da.groupby("time.month").mean()
-        da_anom_std = (da_anom - da_anom.mean(dim = "time"))/(da_anom.std(dim = "time"))
-        da_arr.append(da_anom_std)
+        #da_anom = da.groupby("time.month") - da.groupby("time.month").mean()
+        #da_anom_std = (da_anom - da_anom.mean(dim = "time"))/(da_anom.std(dim = "time"))
+        #da_arr.append(da_anom_std)
 
     if weights: 
         if len(weights) != len(da_arr): 
             raise ValueError("Must provide same number of weights as datasets")
         da_arr = [da*w for da, w in zip(da_arr, weights)]
+    
+    # concat along time
     da_std = xr.concat(da_arr, dim = "time")
     da_raw = xr.concat(da_raw_arr, dim = "time")
     
